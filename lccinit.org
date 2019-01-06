@@ -1,0 +1,377 @@
+* Interface Tweaks
+#+BEGIN_SRC emacs-lisp
+;;;; General Settings 
+;; Better Visible Bell solution - turn off ding & invert mode-line display
+(setq visible-bell nil)
+(setq ring-bell-function (lambda ()
+(invert-face 'mode-line)
+(run-with-timer 0.1 nil 'invert-face 'mode-line)))
+
+;;Matching parentheses & highline current line
+(show-paren-mode 1)
+(global-hl-line-mode 1)
+(make-variable-buffer-local 'global-hl-line-mode)
+
+;;Replace Highlighted text with what I type
+(delete-selection-mode 1)
+
+;; Always ask for confirmation before quitting Emacs
+(setq confirm-kill-emacs 'y-or-n-p)
+
+;; Super nice to switch between frames and buffers
+;; win-switch https://www.emacswiki.org/emacs/WinSwitch
+(use-package win-switch
+  :bind ("C-x o" . win-switch-dispatch)
+  :config
+  (setq win-switch-provide-visual-feedback t)
+  (setq win-switch-feedback-background-color "purple")
+  (setq win-switch-feedback-foreground-color "white")
+  (win-switch-setup-keys-default))
+
+#+END_SRC
+
+
+* Dired-k
+;;; https://github.com/syohex/emacs-dired-k
+#+BEGIN_SRC emacs-lisp
+(use-package dired-k
+  :ensure t
+  :init
+  :config
+  (define-key dired-mode-map (kbd "K") 'dired-k)
+  ;; You can use dired-k alternative to revert-buffer
+  (define-key dired-mode-map (kbd "g") 'dired-k)
+  ;; always execute dired-k when dired buffer is opened
+  (add-hook 'dired-initial-position-hook 'dired-k)
+
+  (add-hook 'dired-after-readin-hook #'dired-k-no-revert))
+#+END_SRC
+
+
+* Neotree
+;;; https://github.com/jaypei/emacs-neotree
+#+BEGIN_SRC emacs-lisp
+(use-package neotree
+  :ensure t
+  :init (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+  :config
+  (global-set-key [f8] 'neotree-toggle)
+
+;; all-the-icons: https://github.com/domtronn/all-the-icons.el
+;; Neotree - Enabling Icons
+;; Installing Fonts
+;; In order for the icons to work it is very important that you install the Resource Fonts included in this package, 
+;; they are available in the fonts directory. You can also install the latest fonts for this package 
+;; in the (guessed?) based on the OS by calling the following function;
+;; M-x all-the-icons-install-fonts
+
+#+END_SRC
+
+
+* Orgmode
+#+BEGIN_SRC emacs-lisp
+;;; Orgmode Bullets
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+
+* Ivy, Counsel & Swiper
+#+BEGIN_SRC emacs-lisp
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(global-set-key "\C-s" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "<f6>") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+;; Use all-the-icons-ivy package
+(all-the-icons-ivy-setup)
+#+END_SRC
+
+
+* Mulitple Cursors (Emacs Rocks)
+#+BEGIN_SRC emacs-lisp
+;;; Multiple-Cursors (Emacs Rocks)
+;; Basic usage
+;; Start out with:
+(require 'multiple-cursors)
+
+;; Then you have to set up your keybindings - multiple-cursors doesn't presume to
+;; know how you'd like them laid out. Here are some examples:
+
+;; When you have an active region that spans multiple lines, the following will
+;; add a cursor to each line:
+
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+
+;; When you want to add multiple cursors not based on continuous lines, but based on
+;; keywords in the buffer, use:
+
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+;; First mark the word, then add more cursors.
+
+;; To get out of multiple-cursors-mode, press `<return>` or `C-g`. The latter will
+;; first disable multiple regions before disabling multiple cursors. If you want to
+;; insert a newline in multiple-cursors-mode, use `C-j`.
+#+END_SRC
+
+
+* Undo Tree
+#+BEGIN_SRC emacs-lisp
+;; Undo Tree
+;; settings
+;;turn on everywhere
+(global-undo-tree-mode 1)
+;; make ctrl-z undo
+(global-set-key (kbd "C-z") 'undo)
+;; make ctrl-Z redo
+(defalias 'redo 'undo-tree-redo)
+(global-set-key (kbd "C-S-z") 'redo)
+#+END_SRC
+
+
+* Javascript Development
+#+BEGIN_SRC emacs-lisp
+;;;
+;; Basic usage
+;; Web article: https://emacs.cafe/emacs/javascript/setup/2017/04/23/emacs-setup-javascript.html
+;;
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+;; Better imenu
+(add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+
+
+(require 'js2-refactor)
+(require 'xref-js2)
+
+(add-hook 'js2-mode-hook #'js2-refactor-mode)
+(js2r-add-keybindings-with-prefix "C-c C-r")
+(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+
+;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+;; unbind it.
+(define-key js-mode-map (kbd "M-.") nil)
+
+(add-hook 'js2-mode-hook (lambda ()
+  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+
+;;;Tern parses JavaScript files in a project and does type inference to provide 
+;; meaningful completion (with type hints) and support for cross-references.
+;; https://emacs.cafe/emacs/javascript/setup/2017/05/09/emacs-setup-javascript-2.html
+;; Enable company-mode with the tern backend for JavaScript buffers
+(require 'company)
+(require 'company-tern)
+
+(add-to-list 'company-backends 'company-tern)
+(add-hook 'js2-mode-hook (lambda ()
+                           (tern-mode)
+                           (company-mode)))
+                           
+;; Disable completion keybindings, as we use xref-js2 instead
+(define-key tern-mode-keymap (kbd "M-.") nil)
+(define-key tern-mode-keymap (kbd "M-,") nil)
+
+#+END_SRC
+
+
+* Flycheck Syntax checker
+#+BEGIN_SRC emacs-lisp 
+;;; Flycheck Syntax checker initilize
+;; Tidy & csslint must be installed (npm -install -g csslint)
+;; Stylelint ( https://stylelint.io/user-guide/node-api/: npm install -g stylelint )
+;; stylelint-config-recommended: npm install -g stylelint-config-recommended
+;; .styleintrc: home directory with contents noted at: 
+;; https://github.com/stylelint/stylelint-config-recommended (9.7.0 globbal option)
+(use-package flycheck
+	     :ensure t
+	     :init (global-flycheck-mode))
+
+(with-eval-after-load 'flycheck
+  (flycheck-add-mode 'html-tidy 'web-mode)
+   (flycheck-add-mode 'css-stylelint 'css-mode))
+;; Old CSSlint- no longer maintained  (flycheck-add-mode 'css-csslint 'css-mode))
+;;Enables Flycheck to use "Standard" for JS syntax checking
+(add-hook 'javascript-mode-hook  'flycheck-mode)
+
+;;; added new Flycheck settings to display below buffers
+(add-to-list 'display-buffer-alist
+             `(,(rx bos "*Flycheck errors*" eos)
+              (display-buffer-reuse-window
+               display-buffer-in-side-window)
+              (side            . bottom)
+              (reusable-frames . visible)
+              (window-height   . 0.33)))
+;;; End of Flycheck settings
+#+END_SRC
+
+
+* Web Mode and Other FEWD tools
+#+BEGIN_SRC emacs-lisp
+;;;; Web Development Settings
+
+;;;Company Mode
+;;Place company.el and the back-ends you want to use in a directory and add the
+;;To use company-mode in all buffers, add the following line to your init file:
+(add-hook 'after-init-hook 'global-company-mode)
+;;load company mode html backend
+(require 'company-web-html)
+
+(defun my-web-mode-hook ()
+  (set (make-local-variable 'company-backends) '(company-css company-web-html ac-html-csswatcher company-yasnippet company-files))
+)
+
+;;; Rainbow Mode: shows color in CSS files
+(add-hook 'css-mode-hook 'rainbow-mode)
+
+
+
+;;;; Emmet
+(add-hook 'sgml-mode-hook 'emmet-mode) ;; Auto-start on any markup modes
+(add-hook 'html-mode-hook 'emmet-mode) ;; enable Emmet's html abbreviation
+(add-hook 'css-mode-hook  'emmet-mode) ;; enable Emmet's css abbrevaiton
+;;Turn on Emmet in Web-Mode
+(add-hook 'web-mode-hook  'emmet-mode) 
+
+
+;;;CSS Mode: associate file type
+(add-to-list 'auto-mode-alist '("\\.css?\\'" . css-mode))
+
+
+
+;;;SCSS Mode: associate file type
+;;;(autoload 'scss-mode "scss-mode")
+(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
+
+
+
+;;;;Web Mode: associate file types
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+;;Invoking wrong Linter for FlyCheck
+;;(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+;;(add-to-list 'auto-mode-alist '("\\.[agj]s\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+;; use web-mode for .jsx files
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+;;Web-mode is able to switch modes into css (style tags) or js (script tags) in an html file. 
+;;For Emmet to switch between html and css properly in the same document, this hook is added.
+;;https://fransiska.github.io/emacs/2017/08/21/web-development-in-emacs
+(add-hook 'web-mode-before-auto-complete-hooks
+    '(lambda ()
+     (let ((web-mode-cur-language
+  	    (web-mode-language-at-pos)))
+               (if (string= web-mode-cur-language "php")
+    	   (yas-activate-extra-mode 'php-mode)
+      	 (yas-deactivate-extra-mode 'php-mode))
+               (if (string= web-mode-cur-language "css")
+    	   (setq emmet-use-css-transform t)
+      	 (setq emmet-use-css-transform nil)))))
+
+
+
+;;;;Web Mode: settings
+;Auto-pairing
+(setq web-mode-enable-auto-pairing t)
+;CSS colorization
+(setq web-mode-enable-css-colorization t)
+;Block face: can be used to set blocks background and default foreground (see web-mode-block-face)
+(setq web-mode-enable-block-face t)
+;Part face: can be used to set parts background and default foreground (see web-mode-script-face and web-mode-style-face which inheritate from web-mode-part-face)
+(setq web-mode-enable-part-face t)
+;Comment keywords (see web-mode-comment-keyword-face)
+(setq web-mode-enable-comment-keywords t)
+;Highlight current HTML element (see web-mode-current-element-highlight-face)
+(setq web-mode-enable-current-element-highlight t)
+;You can also highlight the current column with
+(setq web-mode-enable-current-column-highlight t)
+;HTML Element offset indentation
+(setq web-mode-markup-indent-offset 2)
+;CSS Offset indentation
+(setq web-mode-css-indent-offset 2)
+;Script/Code Offset indentation
+;(setq web-mode-code-indent-offset 2)
+;Line Numbers for Web-Mode
+(setq display-line-numbers t)
+;;deprecated (add-hook 'web-mode 'linum-mode)
+#+END_SRC
+
+
+
+* Ediff
+#+BEGIN_SRC emacs-lisp
+;;; Ediff configurations
+;; Ignore White Space
+;; Split Buffer Windows Horizontally instead of vertically
+;; Ediff Controls in a Buffer window instead of a seperate Frame
+(setq ediff-diff-options "-w")
+(setq ediff-split-window-function 'split-window-horizontally)
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+END_SRC
+
+
+* Line Numbers
+#+BEGIN_SRC emacs-lisp
+  ;;;; Line Numbers for following file types
+  (add-hook 'web-mode-hook  'display-line-numbers-mode)
+  (add-hook 'html-mode-hook 'display-line-numbers-mode)
+  (add-hook 'css-mode-hook 'display-line-numbers-mode)
+  (add-hook 'js-mode-hook 'display-line-numbers-mode)
+  (add-hook 'js3-mode-hook 'display-line-numbers-mode)
+  (add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+  (add-hook 'org-mode-hook 'display-line-numbers-mode)
+#+END_SRC
+
+
+
+* Markdown Mode
+#+BEGIN_SRC emacs-lisp
+;;;New Markdown-mode:
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "pandoc"))
+
+(setq markdown-css-paths '("/Users/lancechandler/Documents/Sentara Website/Concept_Computer-Operations/css/Markdown-CSS.css"))
+(setq markdown-split-window-direction 'right)
+(setq markdown-live-preview-window-function #'browse-url-default-macosx-browser)
+#+END_SRC
+
+
+* Git Time Machine
+  #+BEGIN_SRC emacs-lisp
+;;; Git Time Machine - scroll through previous commits of a file
+;; https://gitlab.com/pidu/git-timemachine
+(use-package git-timemachine
+  :ensure t
+  :config
+  )
+#+END_SRC
