@@ -1,16 +1,23 @@
 ;;; Melpa Packages Site -- Summary
 ;;list-packages
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+;; tell emacs to not initialize the package tool when it is loaded
+(setq package-enable-at-startup nil)
+
+;; provide remote package sources
+(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/"))
 
-(setq package-enable-at-startup nil)
+;; tell built-in package tool to get started
 (package-initialize)
 
 
 
 ;;; Make sure 'use-package' is installed
+;; Bootstrap 'use-package': if not installed, refresh remotes, install it
+;; https://github/jwiegly/use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))

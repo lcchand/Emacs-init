@@ -1,0 +1,35 @@
+# Emacs backup files #
+###################### 
+*.~
+
+# Misc files #
+##############
+#init.el#
+Non-Org-Mode-init.el
+Non-Org-Mode-init.el~
+Previous-init.el
+auto-save-list
+bookmarks
+diary
+elpa
+eshell
+init.el~
+lccinit.el
+lccinit.org~
+recentf
+recentf~
+thumbs
+tramp
+url
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
